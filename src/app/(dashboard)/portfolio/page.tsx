@@ -4,7 +4,12 @@ import { PortfolioView } from "@/features/portfolio";
 export const dynamic = "force-dynamic";
 
 export default async function PortfolioPage() {
-  const portfolio = await fetchPortfolio();
+  let portfolio = null;
+  try {
+    portfolio = await fetchPortfolio();
+  } catch {
+    // DB 연결 실패 등 — 클라이언트에서 재시도
+  }
 
   return (
     <div className="space-y-6">

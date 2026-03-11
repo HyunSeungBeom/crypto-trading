@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { SYMBOL_NAMES } from "@/entities/coin";
-import { formatKRW, formatNumber, formatPercent } from "@/shared/lib/format";
+import { formatUSD, formatKRW, formatNumber, formatPercent } from "@/shared/lib/format";
 
 const USDT_TO_KRW = 1350;
 
@@ -38,23 +38,26 @@ export function HoldingRow({
         {formatNumber(quantity, 6)}
       </td>
       <td className="px-4 py-3 text-right font-mono">
-        <div>{formatKRW(avgPrice * USDT_TO_KRW)}</div>
-        <div className="text-xs text-muted">{formatNumber(avgPrice, 2)} USDT</div>
+        <div>{formatUSD(avgPrice)}</div>
+        <div className="text-xs text-muted">≈ {formatKRW(avgPrice * USDT_TO_KRW)}</div>
       </td>
       <td className="px-4 py-3 text-right font-mono">
-        <div>{formatKRW(currentPrice * USDT_TO_KRW)}</div>
-        <div className="text-xs text-muted">{formatNumber(currentPrice, 2)} USDT</div>
+        <div>{formatUSD(currentPrice)}</div>
+        <div className="text-xs text-muted">≈ {formatKRW(currentPrice * USDT_TO_KRW)}</div>
       </td>
       <td className="px-4 py-3 text-right font-mono">
-        {formatKRW(currentValue * USDT_TO_KRW)}
+        <div>{formatUSD(currentValue)}</div>
+        <div className="text-xs text-muted">≈ {formatKRW(currentValue * USDT_TO_KRW)}</div>
       </td>
       <td
         className={`px-4 py-3 text-right font-mono ${
           pnl >= 0 ? "text-success" : "text-danger"
         }`}
       >
-        <div>{formatKRW(pnl * USDT_TO_KRW)}</div>
-        <div className="text-xs">{formatPercent(pnlPercent)}</div>
+        <div>{pnl >= 0 ? "+" : ""}{formatUSD(pnl)}</div>
+        <div className="text-xs">
+          {formatPercent(pnlPercent)}
+        </div>
       </td>
     </tr>
   );

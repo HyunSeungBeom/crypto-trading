@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { usePriceStore } from "@/shared/model/priceStore";
-import { formatKRW, formatPercent } from "@/shared/lib/format";
+import { formatUSD, formatKRW, formatPercent, formatNumber } from "@/shared/lib/format";
 import { HoldingRow } from "@/entities/holding";
 import type { PortfolioData } from "@/entities/holding";
 import { usePortfolio } from "../model/usePortfolioQueries";
 
 const USDT_TO_KRW = 1350;
-const INITIAL_BALANCE = 10_000_000;
+const INITIAL_BALANCE_KRW = 10_000_000;
 
 interface PortfolioViewProps {
   initialData?: PortfolioData;
@@ -56,14 +56,15 @@ export function PortfolioView({ initialData }: PortfolioViewProps) {
     0,
   );
 
+  const balanceKRW = data.balance;
   const holdingsKRW = totalHoldingsUSDT * USDT_TO_KRW;
-  const totalAssetKRW = data.balance + holdingsKRW;
+  const totalAssetKRW = balanceKRW + holdingsKRW;
   const totalReturn =
-    ((totalAssetKRW - INITIAL_BALANCE) / INITIAL_BALANCE) * 100;
+    ((totalAssetKRW - INITIAL_BALANCE_KRW) / INITIAL_BALANCE_KRW) * 100;
 
   return (
     <div className="space-y-6">
-      {/* 총 자산 요약 */}
+      {/* 총 자산 */}
       <div className="rounded-2xl border border-border bg-card p-6">
         <p className="text-sm text-muted">총 자산 (추정)</p>
         <p className="mt-1 text-3xl font-bold font-mono tracking-tight">
@@ -78,33 +79,26 @@ export function PortfolioView({ initialData }: PortfolioViewProps) {
             {formatPercent(totalReturn)}
           </span>
           <span className="text-xs text-muted">
-            (초기자금 {formatKRW(INITIAL_BALANCE)} 대비)
+            초기자금 {formatKRW(INITIAL_BALANCE_KRW)} 대비
           </span>
         </div>
       </div>
 
-      {/* 자산 구성 카드 */}
+      {/* 자산 구성 */}
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="rounded-xl border border-border bg-card p-4">
           <p className="text-xs text-muted">보유 현금</p>
           <p className="mt-1 text-lg font-bold font-mono">
-            {formatKRW(data.balance)}
-          </p>
-          <p className="mt-1 text-xs text-muted">
-            {totalAssetKRW > 0
-              ? `${((data.balance / totalAssetKRW) * 100).toFixed(1)}%`
-              : "0%"}
+            {formatKRW(balanceKRW)}
           </p>
         </div>
         <div className="rounded-xl border border-border bg-card p-4">
           <p className="text-xs text-muted">코인 평가액</p>
           <p className="mt-1 text-lg font-bold font-mono">
-            {formatKRW(holdingsKRW)}
+            {formatUSD(totalHoldingsUSDT)}
           </p>
-          <p className="mt-1 text-xs text-muted">
-            {totalAssetKRW > 0
-              ? `${((holdingsKRW / totalAssetKRW) * 100).toFixed(1)}%`
-              : "0%"}
+          <p className="mt-0.5 text-xs text-muted">
+            ≈ {formatKRW(holdingsKRW)}
           </p>
         </div>
         <div className="rounded-xl border border-border bg-card p-4">
@@ -114,14 +108,10 @@ export function PortfolioView({ initialData }: PortfolioViewProps) {
               totalPnlUSDT >= 0 ? "text-success" : "text-danger"
             }`}
           >
-            {formatKRW(totalPnlUSDT * USDT_TO_KRW)}
+            {totalPnlUSDT >= 0 ? "+" : ""}{formatUSD(totalPnlUSDT)}
           </p>
-          <p className="mt-1 text-xs text-muted">
-            ≈ {totalPnlUSDT >= 0 ? "+" : ""}
-            {totalPnlUSDT.toLocaleString("en-US", {
-              maximumFractionDigits: 2,
-            })}{" "}
-            USDT
+          <p className="mt-0.5 text-xs text-muted">
+            ≈ {formatKRW(totalPnlUSDT * USDT_TO_KRW)}
           </p>
         </div>
       </div>
@@ -148,9 +138,7 @@ export function PortfolioView({ initialData }: PortfolioViewProps) {
                 <tr className="border-b border-border text-muted">
                   <th className="px-4 py-3 text-left font-medium">코인</th>
                   <th className="px-4 py-3 text-right font-medium">수량</th>
-                  <th className="px-4 py-3 text-right font-medium">
-                    평균단가
-                  </th>
+                  <th className="px-4 py-3 text-right font-medium">평균단가</th>
                   <th className="px-4 py-3 text-right font-medium">현재가</th>
                   <th className="px-4 py-3 text-right font-medium">평가금</th>
                   <th className="px-4 py-3 text-right font-medium">손익</th>
@@ -168,14 +156,20 @@ export function PortfolioView({ initialData }: PortfolioViewProps) {
                   <td />
                   <td />
                   <td className="px-4 py-3 text-right font-mono">
-                    {formatKRW(holdingsKRW)}
+                    <div>{formatUSD(totalHoldingsUSDT)}</div>
+                    <div className="text-xs text-muted font-normal">
+                      ≈ {formatKRW(holdingsKRW)}
+                    </div>
                   </td>
                   <td
                     className={`px-4 py-3 text-right font-mono ${
                       totalPnlUSDT >= 0 ? "text-success" : "text-danger"
                     }`}
                   >
-                    {formatKRW(totalPnlUSDT * USDT_TO_KRW)}
+                    <div>{totalPnlUSDT >= 0 ? "+" : ""}{formatUSD(totalPnlUSDT)}</div>
+                    <div className="text-xs font-normal">
+                      ≈ {formatKRW(totalPnlUSDT * USDT_TO_KRW)}
+                    </div>
                   </td>
                 </tr>
               </tfoot>
@@ -185,7 +179,7 @@ export function PortfolioView({ initialData }: PortfolioViewProps) {
       </div>
 
       <p className="text-xs text-muted text-right">
-        * 환율 기준: 1 USDT = {USDT_TO_KRW.toLocaleString()}원 (고정)
+        * 환율: 1 USDT ≈ {formatNumber(USDT_TO_KRW, 0)}원 (고정)
       </p>
     </div>
   );
