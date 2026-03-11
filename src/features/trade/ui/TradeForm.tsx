@@ -57,6 +57,9 @@ export function TradeForm({ symbol, balance, holdingQuantity }: Props) {
           );
           reset();
         },
+        onError: (error) => {
+          toast.error(error.message || "거래에 실패했습니다");
+        },
       },
     );
   }
