@@ -27,7 +27,9 @@ export async function executeTrade(params: {
 
   try {
     const { symbol, side, quantity, price } = tradeSchema.parse(params);
-    const total = quantity * price;
+    const totalUSDT = quantity * price;
+    const USDT_TO_KRW = 1350;
+    const totalKRW = totalUSDT * USDT_TO_KRW;
     const userId = session.user.id;
 
     if (side === "BUY") {
@@ -36,13 +38,13 @@ export async function executeTrade(params: {
           where: { id: userId },
         });
 
-        if (user.balance < total) {
+        if (user.balance < totalKRW) {
           throw new Error("잔고가 부족합니다");
         }
 
         await tx.user.update({
           where: { id: userId },
-          data: { balance: { decrement: total } },
+          data: { balance: { decrement: totalKRW } },
         });
 
         const existing = await tx.holding.findUnique({
@@ -66,7 +68,7 @@ export async function executeTrade(params: {
         }
 
         return tx.transaction.create({
-          data: { userId, symbol, side: "BUY", quantity, price, total },
+          data: { userId, symbol, side: "BUY", quantity, price, total: totalKRW },
         });
       });
 
@@ -93,7 +95,7 @@ export async function executeTrade(params: {
 
         await tx.user.update({
           where: { id: userId },
-          data: { balance: { increment: total } },
+          data: { balance: { increment: totalKRW } },
         });
 
         const remainingQuantity = holding.quantity - quantity;
@@ -107,7 +109,7 @@ export async function executeTrade(params: {
         }
 
         return tx.transaction.create({
-          data: { userId, symbol, side: "SELL", quantity, price, total },
+          data: { userId, symbol, side: "SELL", quantity, price, total: totalKRW },
         });
       });
 

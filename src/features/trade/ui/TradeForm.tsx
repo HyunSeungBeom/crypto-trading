@@ -32,8 +32,10 @@ export function TradeForm({ symbol, balance, holdingQuantity }: Props) {
     resolver: zodResolver(tradeSchema),
   });
 
+  const USDT_TO_KRW = 1350;
   const quantity = watch("quantity");
-  const total = (quantity || 0) * currentPrice;
+  const totalUSDT = (quantity || 0) * currentPrice;
+  const totalKRW = totalUSDT * USDT_TO_KRW;
 
   function onSubmit(values: TradeFormValues) {
     if (!currentPrice) {
@@ -123,10 +125,16 @@ export function TradeForm({ symbol, balance, holdingQuantity }: Props) {
           )}
         </div>
 
-        {total > 0 && (
-          <div className="flex justify-between text-sm">
-            <span className="text-muted">총 금액</span>
-            <span className="font-mono">{formatUSD(total)}</span>
+        {totalUSDT > 0 && (
+          <div className="space-y-1">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted">총 금액</span>
+              <span className="font-mono">{formatUSD(totalUSDT)}</span>
+            </div>
+            <div className="flex justify-between text-xs text-muted">
+              <span />
+              <span className="font-mono">≈ {formatKRW(totalKRW)}</span>
+            </div>
           </div>
         )}
 
