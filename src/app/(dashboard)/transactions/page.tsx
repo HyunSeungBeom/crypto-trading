@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { SYMBOL_NAMES } from "@/lib/binance";
 import { formatUSD, formatNumber, formatDate } from "@/lib/format";
+import api from "@/lib/api";
 
 interface Transaction {
   id: string;
@@ -36,11 +37,12 @@ export default function TransactionsPage() {
     });
     if (filterSide) params.set("side", filterSide);
 
-    fetch(`/api/transactions?${params}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setTransactions(data.transactions);
-        setPagination(data.pagination);
+    api
+      .get(`/api/transactions?${params}`)
+      .then((data: unknown) => {
+        const d = data as { transactions: Transaction[]; pagination: Pagination };
+        setTransactions(d.transactions);
+        setPagination(d.pagination);
         setLoading(false);
       })
       .catch(() => setLoading(false));

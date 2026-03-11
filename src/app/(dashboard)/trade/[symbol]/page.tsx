@@ -7,6 +7,7 @@ import { SYMBOL_NAMES } from "@/lib/binance";
 import { formatUSD, formatPercent } from "@/lib/format";
 import CandlestickChart from "@/components/trade/CandlestickChart";
 import TradeForm from "@/components/trade/TradeForm";
+import api from "@/lib/api";
 
 interface PortfolioData {
   balance: number;
@@ -24,9 +25,9 @@ export default function TradePage({
   const [portfolio, setPortfolio] = useState<PortfolioData | null>(null);
 
   const fetchPortfolio = useCallback(() => {
-    fetch("/api/portfolio")
-      .then((res) => res.json())
-      .then(setPortfolio)
+    api
+      .get("/api/portfolio")
+      .then((d: unknown) => setPortfolio(d as PortfolioData))
       .catch(() => {});
   }, []);
 

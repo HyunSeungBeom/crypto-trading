@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { usePrices } from "@/components/PriceProvider";
 import { formatUSD, formatKRW } from "@/lib/format";
+import api from "@/lib/api";
 
 interface TradeFormProps {
   symbol: string;
@@ -23,9 +24,7 @@ export default function TradeForm({
   const [loading, setLoading] = useState(false);
   const prices = usePrices();
 
-  const currentPrice = prices[symbol]
-    ? parseFloat(prices[symbol].price)
-    : 0;
+  const currentPrice = prices[symbol] ? parseFloat(prices[symbol].price) : 0;
   const total = parseFloat(quantity || "0") * currentPrice;
 
   async function handleSubmit(e: React.FormEvent) {
@@ -37,29 +36,20 @@ export default function TradeForm({
 
     setLoading(true);
     try {
-      const res = await fetch("/api/trade", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          symbol,
-          side,
-          quantity: parseFloat(quantity),
-          price: currentPrice,
-        }),
+      await api.post("/api/trade", {
+        symbol,
+        side,
+        quantity: parseFloat(quantity),
+        price: currentPrice,
       });
 
-      const data = await res.json();
-      if (!res.ok) {
-        toast.error(data.error);
-      } else {
-        toast.success(
-          `${side === "BUY" ? "매수" : "매도"} 완료: ${quantity} ${symbol.replace("USDT", "")}`
-        );
-        setQuantity("");
-        onTradeComplete();
-      }
+      toast.success(
+        `${side === "BUY" ? "매수" : "매도"} 완료: ${quantity} ${symbol.replace("USDT", "")}`,
+      );
+      setQuantity("");
+      onTradeComplete();
     } catch {
-      toast.error("거래 처리 중 오류가 발생했습니다");
+      // 인터셉터가 toast.error 처리
     } finally {
       setLoading(false);
     }

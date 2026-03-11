@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { usePrices } from "@/components/PriceProvider";
 import { SUPPORTED_SYMBOLS, SYMBOL_NAMES } from "@/lib/binance";
 import { formatUSD } from "@/lib/format";
+import api from "@/lib/api";
 
 interface PriceAlert {
   id: string;
@@ -25,10 +26,10 @@ export default function AlertsPage() {
   const triggeredRef = useRef<Set<string>>(new Set());
 
   function fetchAlerts() {
-    fetch("/api/alerts")
-      .then((res) => res.json())
-      .then((data) => {
-        setAlerts(data);
+    api
+      .get("/api/alerts")
+      .then((data: unknown) => {
+        setAlerts(data as PriceAlert[]);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -65,37 +66,27 @@ export default function AlertsPage() {
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     try {
-      const res = await fetch("/api/alerts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          symbol,
-          targetPrice: parseFloat(targetPrice),
-          condition,
-        }),
+      await api.post("/api/alerts", {
+        symbol,
+        targetPrice: parseFloat(targetPrice),
+        condition,
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        toast.error(data.error);
-        return;
-      }
 
       toast.success("알림이 설정되었습니다");
       setTargetPrice("");
       fetchAlerts();
     } catch {
-      toast.error("알림 생성에 실패했습니다");
+      // 인터셉터가 toast.error 처리
     }
   }
 
   async function handleDelete(id: string) {
     try {
-      await fetch(`/api/alerts?id=${id}`, { method: "DELETE" });
+      await api.delete(`/api/alerts?id=${id}`);
       setAlerts((prev) => prev.filter((a) => a.id !== id));
       toast.success("알림이 삭제되었습니다");
     } catch {
-      toast.error("삭제에 실패했습니다");
+      // 인터셉터가 toast.error 처리
     }
   }
 

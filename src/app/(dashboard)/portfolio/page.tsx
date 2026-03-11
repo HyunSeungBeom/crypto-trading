@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePrices } from "@/components/PriceProvider";
 import { SYMBOL_NAMES } from "@/lib/binance";
 import { formatKRW, formatUSD, formatPercent, formatNumber } from "@/lib/format";
+import api from "@/lib/api";
 
 interface Holding {
   id: string;
@@ -24,10 +25,10 @@ export default function PortfolioPage() {
   const prices = usePrices();
 
   useEffect(() => {
-    fetch("/api/portfolio")
-      .then((res) => res.json())
-      .then((d) => {
-        setData(d);
+    api
+      .get("/api/portfolio")
+      .then((d: unknown) => {
+        setData(d as PortfolioData);
         setLoading(false);
       })
       .catch(() => setLoading(false));
