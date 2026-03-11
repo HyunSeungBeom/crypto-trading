@@ -1,4 +1,4 @@
-export { alertApi } from "./api/alertApi";
+export { fetchAlerts, createAlert, deleteAlert } from "./api/alertActions";
 export {
   useAlerts,
   useCreateAlert,

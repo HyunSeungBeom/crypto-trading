@@ -4,7 +4,12 @@ import Link from "next/link";
 import { usePriceStore } from "@/shared/model/priceStore";
 import { formatKRW, formatUSD, formatPercent } from "@/shared/lib/format";
 import { HoldingRow } from "@/entities/holding";
+import type { PortfolioData } from "@/entities/holding";
 import { usePortfolio } from "../model/usePortfolioQueries";
+
+interface PortfolioViewProps {
+  initialData?: PortfolioData;
+}
 
 function SummaryCard({
   label,
@@ -27,8 +32,8 @@ function SummaryCard({
   );
 }
 
-export function PortfolioView() {
-  const { data, isLoading } = usePortfolio();
+export function PortfolioView({ initialData }: PortfolioViewProps) {
+  const { data, isLoading } = usePortfolio({ initialData });
   const prices = usePriceStore((s) => s.prices);
 
   if (isLoading) {

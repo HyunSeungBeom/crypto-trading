@@ -1,3 +1,3 @@
-export { portfolioApi } from "./api/portfolioApi";
+export { fetchPortfolio } from "./api/portfolioActions";
 export { usePortfolio } from "./model/usePortfolioQueries";
 export { PortfolioView } from "./ui/PortfolioView";

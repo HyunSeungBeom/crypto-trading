@@ -1,7 +1,10 @@
-"use client";
-
+import { fetchAlerts } from "@/features/alert/api/alertActions";
 import { AlertsView } from "@/features/alert";
 
-export default function AlertsPage() {
-  return <AlertsView />;
+export const dynamic = "force-dynamic";
+
+export default async function AlertsPage() {
+  const alerts = await fetchAlerts();
+
+  return <AlertsView initialData={alerts} />;
 }

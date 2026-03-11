@@ -13,7 +13,7 @@ export class ApiError extends Error {
 }
 
 const apiClient = ky.create({
-  prefixUrl: "",
+  prefixUrl: "/",
   timeout: 10000,
   hooks: {
     beforeRequest: [

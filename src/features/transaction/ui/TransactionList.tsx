@@ -2,13 +2,22 @@
 
 import { useState } from "react";
 import { TransactionRow } from "@/entities/transaction";
+import type { TransactionsResponse } from "@/entities/transaction";
 import { useTransactions } from "../model/useTransactionQueries";
 
-export function TransactionList() {
+interface TransactionListProps {
+  initialData?: TransactionsResponse;
+}
+
+export function TransactionList({ initialData }: TransactionListProps) {
   const [page, setPage] = useState(1);
   const [filterSide, setFilterSide] = useState<string>("");
 
-  const { data, isLoading } = useTransactions(page, filterSide || undefined);
+  const { data, isLoading } = useTransactions(
+    page,
+    filterSide || undefined,
+    page === 1 && !filterSide ? { initialData } : undefined,
+  );
   const transactions = data?.transactions ?? [];
   const pagination = data?.pagination ?? null;
 

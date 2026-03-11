@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
+"use server";
+
 import { z } from "zod";
-import { auth } from "@/shared/lib/auth";
-import { prisma } from "@/shared/lib/prisma";
+import { prisma, auth } from "@/shared/api/serverApi";
 
 const tradeSchema = z.object({
   symbol: z.string().min(1),
@@ -10,15 +10,23 @@ const tradeSchema = z.object({
   price: z.number().positive("가격은 0보다 커야 합니다"),
 });
 
-export async function POST(req: Request) {
+type TradeResult =
+  | { success: true; transaction: { id: string; symbol: string; side: string; quantity: number; price: number; total: number } }
+  | { success: false; error: string };
+
+export async function executeTrade(params: {
+  symbol: string;
+  side: "BUY" | "SELL";
+  quantity: number;
+  price: number;
+}): Promise<TradeResult> {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "인증이 필요합니다" }, { status: 401 });
+    return { success: false, error: "인증이 필요합니다" };
   }
 
   try {
-    const body = await req.json();
-    const { symbol, side, quantity, price } = tradeSchema.parse(body);
+    const { symbol, side, quantity, price } = tradeSchema.parse(params);
     const total = quantity * price;
     const userId = session.user.id;
 
@@ -62,7 +70,17 @@ export async function POST(req: Request) {
         });
       });
 
-      return NextResponse.json(result, { status: 201 });
+      return {
+        success: true,
+        transaction: {
+          id: result.id,
+          symbol: result.symbol,
+          side: result.side,
+          quantity: result.quantity,
+          price: result.price,
+          total: result.total,
+        },
+      };
     } else {
       const result = await prisma.$transaction(async (tx) => {
         const holding = await tx.holding.findUnique({
@@ -93,17 +111,24 @@ export async function POST(req: Request) {
         });
       });
 
-      return NextResponse.json(result, { status: 201 });
+      return {
+        success: true,
+        transaction: {
+          id: result.id,
+          symbol: result.symbol,
+          side: result.side,
+          quantity: result.quantity,
+          price: result.price,
+          total: result.total,
+        },
+      };
     }
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: error.issues[0].message },
-        { status: 400 }
-      );
+      return { success: false, error: error.issues[0].message };
     }
     const message =
       error instanceof Error ? error.message : "거래 처리에 실패했습니다";
-    return NextResponse.json({ error: message }, { status: 400 });
+    return { success: false, error: message };
   }
 }

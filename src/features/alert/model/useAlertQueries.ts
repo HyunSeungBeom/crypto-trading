@@ -1,12 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/shared/api";
 import type { PriceAlert } from "@/entities/alert";
-import { alertApi } from "../api/alertApi";
+import { fetchAlerts, createAlert, deleteAlert } from "../api/alertActions";
 
-export function useAlerts() {
+export function useAlerts(options?: { initialData?: PriceAlert[] }) {
   return useQuery({
     queryKey: queryKeys.alerts.all,
-    queryFn: () => alertApi.list(),
+    queryFn: () => fetchAlerts(),
+    initialData: options?.initialData,
   });
 }
 
@@ -14,7 +15,17 @@ export function useCreateAlert() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: alertApi.create,
+    mutationFn: async (params: {
+      symbol: string;
+      targetPrice: number;
+      condition: "ABOVE" | "BELOW";
+    }) => {
+      const result = await createAlert(params);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result.alert;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.alerts.all });
     },
@@ -25,7 +36,12 @@ export function useDeleteAlert() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: alertApi.delete,
+    mutationFn: async (id: string) => {
+      const result = await deleteAlert(id);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+    },
     onMutate: async (deletedId) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.alerts.all });
 

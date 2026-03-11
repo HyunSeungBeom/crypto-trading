@@ -1,7 +1,10 @@
-"use client";
-
+import { fetchLeaderboard } from "@/features/leaderboard/api/leaderboardActions";
 import { LeaderboardView } from "@/features/leaderboard";
 
-export default function LeaderboardPage() {
-  return <LeaderboardView />;
+export const dynamic = "force-dynamic";
+
+export default async function LeaderboardPage() {
+  const users = await fetchLeaderboard();
+
+  return <LeaderboardView initialData={users} />;
 }

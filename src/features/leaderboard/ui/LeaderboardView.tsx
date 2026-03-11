@@ -3,13 +3,18 @@
 import { usePriceStore } from "@/shared/model/priceStore";
 import { formatKRW, formatPercent } from "@/shared/lib/format";
 import { useSession } from "next-auth/react";
+import type { LeaderboardUser } from "@/entities/user";
 import { useLeaderboard } from "../model/useLeaderboardQueries";
 
 const INITIAL_BALANCE = 10_000_000;
 const USDT_TO_KRW = 1350;
 
-export function LeaderboardView() {
-  const { data: users, isLoading } = useLeaderboard();
+interface LeaderboardViewProps {
+  initialData?: LeaderboardUser[];
+}
+
+export function LeaderboardView({ initialData }: LeaderboardViewProps) {
+  const { data: users, isLoading } = useLeaderboard({ initialData });
   const { data: session } = useSession();
   const prices = usePriceStore((s) => s.prices);
 

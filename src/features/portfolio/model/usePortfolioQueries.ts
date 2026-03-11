@@ -1,11 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/shared/api";
-import { portfolioApi } from "../api/portfolioApi";
+import type { PortfolioData } from "@/entities/holding";
+import { fetchPortfolio } from "../api/portfolioActions";
 
-export function usePortfolio() {
+export function usePortfolio(options?: { initialData?: PortfolioData }) {
   return useQuery({
     queryKey: queryKeys.portfolio.all,
-    queryFn: () => portfolioApi.get(),
-    staleTime: 30 * 1000,
+    queryFn: () => fetchPortfolio(),
+    initialData: options?.initialData ?? undefined,
+    staleTime: 30_000,
   });
 }

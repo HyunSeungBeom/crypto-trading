@@ -1,11 +1,17 @@
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { queryKeys } from "@/shared/api";
-import { transactionApi } from "../api/transactionApi";
+import type { TransactionsResponse } from "@/entities/transaction";
+import { fetchTransactions } from "../api/transactionActions";
 
-export function useTransactions(page: number, side?: string) {
+export function useTransactions(
+  page: number,
+  side?: string,
+  options?: { initialData?: TransactionsResponse },
+) {
   return useQuery({
     queryKey: queryKeys.transactions.list({ page, side }),
-    queryFn: () => transactionApi.list({ page, side }),
+    queryFn: () => fetchTransactions({ page, side }),
     placeholderData: keepPreviousData,
+    initialData: options?.initialData,
   });
 }

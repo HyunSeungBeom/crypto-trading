@@ -5,14 +5,19 @@ import { toast } from "sonner";
 import { usePriceStore } from "@/shared/model/priceStore";
 import { formatUSD } from "@/shared/lib/format";
 import { AlertItem } from "@/entities/alert";
+import type { PriceAlert } from "@/entities/alert";
 import { useAlerts, useDeleteAlert } from "../model/useAlertQueries";
 import { AlertCreateForm } from "./AlertCreateForm";
 
-export function AlertsView() {
+interface AlertsViewProps {
+  initialData?: PriceAlert[];
+}
+
+export function AlertsView({ initialData }: AlertsViewProps) {
   const prices = usePriceStore((s) => s.prices);
   const triggeredRef = useRef<Set<string>>(new Set());
 
-  const { data: alerts = [], isLoading } = useAlerts();
+  const { data: alerts = [], isLoading } = useAlerts({ initialData });
   const deleteAlert = useDeleteAlert();
 
   useEffect(() => {

@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     if (existing) {
       return NextResponse.json(
         { error: "이미 가입된 이메일입니다" },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -33,12 +33,13 @@ export async function POST(req: Request) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: error.issues[0].message },
-        { status: 400 }
+        { status: 400 },
       );
     }
+    console.error("Signup error:", error);
     return NextResponse.json(
       { error: "서버 오류가 발생했습니다" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
