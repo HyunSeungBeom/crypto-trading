@@ -9,9 +9,15 @@ export async function GET(
     const { symbol } = await params;
     const { searchParams } = new URL(request.url);
     const interval = searchParams.get("interval") || "1h";
-    const limit = parseInt(searchParams.get("limit") || "100");
+    const limit = parseInt(searchParams.get("limit") || "500");
+    const endTime = searchParams.get("endTime");
 
-    const klines = await fetchKlines(symbol.toUpperCase(), interval, limit);
+    const klines = await fetchKlines(
+      symbol.toUpperCase(),
+      interval,
+      limit,
+      endTime ? parseInt(endTime) : undefined,
+    );
     return NextResponse.json(klines);
   } catch {
     return NextResponse.json(

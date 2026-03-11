@@ -50,3 +50,13 @@ export interface TickerUpdate {
   price: string;
   priceChangePercent: string;
 }
+
+export interface OrderBookEntry {
+  price: string;
+  quantity: string;
+}
+
+export interface OrderBookData {
+  bids: OrderBookEntry[];
+  asks: OrderBookEntry[];
+}

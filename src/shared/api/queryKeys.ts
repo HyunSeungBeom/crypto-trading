@@ -3,6 +3,8 @@ export const queryKeys = {
     all: ["coins"] as const,
     klines: (symbol: string, interval: string) =>
       ["coins", "klines", symbol, interval] as const,
+    orderbook: (symbol: string) =>
+      ["coins", "orderbook", symbol] as const,
   },
   portfolio: {
     all: ["portfolio"] as const,

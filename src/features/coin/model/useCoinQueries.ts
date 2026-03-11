@@ -10,10 +10,19 @@ export function useCoins() {
   });
 }
 
-export function useKlines(symbol: string, interval: string) {
+export function useKlines(symbol: string, interval: string, limit: number = 500) {
   return useQuery({
     queryKey: queryKeys.coins.klines(symbol, interval),
-    queryFn: () => coinApi.getKlines(symbol, interval),
+    queryFn: () => coinApi.getKlines(symbol, interval, limit),
     enabled: !!symbol,
+  });
+}
+
+export function useOrderBook(symbol: string) {
+  return useQuery({
+    queryKey: queryKeys.coins.orderbook(symbol),
+    queryFn: () => coinApi.getOrderBook(symbol),
+    enabled: !!symbol,
+    refetchInterval: 3000,
   });
 }
