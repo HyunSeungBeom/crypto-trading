@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { auth } from "@/shared/lib/auth";
+import { prisma } from "@/shared/lib/prisma";
 
 const alertSchema = z.object({
   symbol: z.string().min(1),

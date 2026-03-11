@@ -1,18 +1,12 @@
 "use client";
 
-import { useEffect, useState, useCallback, use } from "react";
+import { use } from "react";
 import Link from "next/link";
-import { usePrices } from "@/components/PriceProvider";
-import { SYMBOL_NAMES } from "@/lib/binance";
-import { formatUSD, formatPercent } from "@/lib/format";
-import CandlestickChart from "@/components/trade/CandlestickChart";
-import TradeForm from "@/components/trade/TradeForm";
-import api from "@/lib/api";
-
-interface PortfolioData {
-  balance: number;
-  holdings: { symbol: string; quantity: number; avgPrice: number }[];
-}
+import { usePriceStore } from "@/shared/model/priceStore";
+import { SYMBOL_NAMES } from "@/entities/coin";
+import { formatUSD, formatPercent } from "@/shared/lib/format";
+import { usePortfolio } from "@/features/portfolio";
+import { TradeForm, CandlestickChart } from "@/features/trade";
 
 export default function TradePage({
   params,
@@ -21,19 +15,8 @@ export default function TradePage({
 }) {
   const { symbol } = use(params);
   const upperSymbol = symbol.toUpperCase();
-  const prices = usePrices();
-  const [portfolio, setPortfolio] = useState<PortfolioData | null>(null);
-
-  const fetchPortfolio = useCallback(() => {
-    api
-      .get("/api/portfolio")
-      .then((d: unknown) => setPortfolio(d as PortfolioData))
-      .catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    fetchPortfolio();
-  }, [fetchPortfolio]);
+  const prices = usePriceStore((s) => s.prices);
+  const { data: portfolio } = usePortfolio();
 
   const live = prices[upperSymbol];
   const currentPrice = live ? parseFloat(live.price) : 0;
@@ -82,7 +65,6 @@ export default function TradePage({
             symbol={upperSymbol}
             balance={portfolio?.balance ?? 0}
             holdingQuantity={holding?.quantity ?? 0}
-            onTradeComplete={fetchPortfolio}
           />
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { fetchTickers } from "@/lib/binance";
+import { fetchTickers } from "@/shared/lib/binance";
 
 export async function GET() {
   try {

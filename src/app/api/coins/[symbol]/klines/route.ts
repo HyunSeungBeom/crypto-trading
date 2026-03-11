@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { fetchKlines } from "@/lib/binance";
+import { fetchKlines } from "@/shared/lib/binance";
 
 export async function GET(
   request: Request,

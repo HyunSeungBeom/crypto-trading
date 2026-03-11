@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-import { PriceProvider } from "@/components/PriceProvider";
+import { PriceProvider } from "@/shared/providers/PriceProvider";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "대시보드" },
