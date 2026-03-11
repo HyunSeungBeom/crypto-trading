@@ -4,7 +4,12 @@ import { AlertsView } from "@/features/alert";
 export const dynamic = "force-dynamic";
 
 export default async function AlertsPage() {
-  const alerts = await fetchAlerts();
+  let alerts = null;
+  try {
+    alerts = await fetchAlerts();
+  } catch {
+    // DB 연결 실패 등 — 클라이언트에서 재시도
+  }
 
-  return <AlertsView initialData={alerts} />;
+  return <AlertsView initialData={alerts ?? undefined} />;
 }
