@@ -142,7 +142,7 @@ export function CandlestickChart({ symbol, height = 500 }: Props) {
       window.removeEventListener("resize", handleResize);
       chart.remove();
     };
-  }, []);
+  }, [height]);
 
   // Set initial data from react-query
   useEffect(() => {
