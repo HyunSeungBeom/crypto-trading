@@ -18,6 +18,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "CryptoSim - 모의 코인 투자",
   description: "실시간 시세 기반 모의 코인 투자 플랫폼",
+  icons: { icon: "/icon.svg" },
 };
 
 export default function RootLayout({
