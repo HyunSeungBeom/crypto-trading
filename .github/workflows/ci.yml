@@ -55,6 +55,9 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
+      - name: Generate Prisma client
+        run: npx prisma generate
+
       - name: Install Vercel CLI
         run: npm i -g vercel
 
