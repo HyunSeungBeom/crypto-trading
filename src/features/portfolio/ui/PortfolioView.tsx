@@ -2,34 +2,16 @@
 
 import Link from "next/link";
 import { usePriceStore } from "@/shared/model/priceStore";
-import { formatKRW, formatUSD, formatPercent } from "@/shared/lib/format";
+import { formatKRW, formatPercent } from "@/shared/lib/format";
 import { HoldingRow } from "@/entities/holding";
 import type { PortfolioData } from "@/entities/holding";
 import { usePortfolio } from "../model/usePortfolioQueries";
 
+const USDT_TO_KRW = 1350;
+const INITIAL_BALANCE = 10_000_000;
+
 interface PortfolioViewProps {
   initialData?: PortfolioData;
-}
-
-function SummaryCard({
-  label,
-  value,
-  valueColor,
-}: {
-  label: string;
-  value: string;
-  valueColor?: string;
-}) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-4">
-      <p className="text-sm text-muted">{label}</p>
-      <p
-        className={`mt-1 text-lg font-semibold font-mono ${valueColor || ""}`}
-      >
-        {value}
-      </p>
-    </div>
-  );
 }
 
 export function PortfolioView({ initialData }: PortfolioViewProps) {
@@ -65,42 +47,88 @@ export function PortfolioView({ initialData }: PortfolioViewProps) {
     };
   });
 
-  const totalHoldingsValue = holdingsWithValue.reduce(
+  const totalHoldingsUSDT = holdingsWithValue.reduce(
     (sum, h) => sum + h.currentValue,
     0,
   );
-  const totalInvested = holdingsWithValue.reduce(
-    (sum, h) => sum + h.investedValue,
+  const totalPnlUSDT = holdingsWithValue.reduce(
+    (sum, h) => sum + h.pnl,
     0,
   );
-  const totalPnl = totalHoldingsValue - totalInvested;
-  const usdtToKrw = 1350;
-  const totalAssetKRW = data.balance + totalHoldingsValue * usdtToKrw;
-  const initialBalance = 10_000_000;
+
+  const holdingsKRW = totalHoldingsUSDT * USDT_TO_KRW;
+  const totalAssetKRW = data.balance + holdingsKRW;
   const totalReturn =
-    ((totalAssetKRW - initialBalance) / initialBalance) * 100;
+    ((totalAssetKRW - INITIAL_BALANCE) / INITIAL_BALANCE) * 100;
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <SummaryCard
-          label="총 자산 (추정)"
-          value={formatKRW(totalAssetKRW)}
-        />
-        <SummaryCard label="보유 현금" value={formatKRW(data.balance)} />
-        <SummaryCard
-          label="코인 평가액 (USDT)"
-          value={formatUSD(totalHoldingsValue)}
-        />
-        <SummaryCard
-          label="총 수익률"
-          value={formatPercent(totalReturn)}
-          valueColor={totalReturn >= 0 ? "text-success" : "text-danger"}
-        />
+      {/* 총 자산 요약 */}
+      <div className="rounded-2xl border border-border bg-card p-6">
+        <p className="text-sm text-muted">총 자산 (추정)</p>
+        <p className="mt-1 text-3xl font-bold font-mono tracking-tight">
+          {formatKRW(totalAssetKRW)}
+        </p>
+        <div className="mt-3 flex items-center gap-2">
+          <span
+            className={`text-sm font-semibold font-mono ${
+              totalReturn >= 0 ? "text-success" : "text-danger"
+            }`}
+          >
+            {formatPercent(totalReturn)}
+          </span>
+          <span className="text-xs text-muted">
+            (초기자금 {formatKRW(INITIAL_BALANCE)} 대비)
+          </span>
+        </div>
       </div>
 
+      {/* 자산 구성 카드 */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="rounded-xl border border-border bg-card p-4">
+          <p className="text-xs text-muted">보유 현금</p>
+          <p className="mt-1 text-lg font-bold font-mono">
+            {formatKRW(data.balance)}
+          </p>
+          <p className="mt-1 text-xs text-muted">
+            {totalAssetKRW > 0
+              ? `${((data.balance / totalAssetKRW) * 100).toFixed(1)}%`
+              : "0%"}
+          </p>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-4">
+          <p className="text-xs text-muted">코인 평가액</p>
+          <p className="mt-1 text-lg font-bold font-mono">
+            {formatKRW(holdingsKRW)}
+          </p>
+          <p className="mt-1 text-xs text-muted">
+            {totalAssetKRW > 0
+              ? `${((holdingsKRW / totalAssetKRW) * 100).toFixed(1)}%`
+              : "0%"}
+          </p>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-4">
+          <p className="text-xs text-muted">코인 총 손익</p>
+          <p
+            className={`mt-1 text-lg font-bold font-mono ${
+              totalPnlUSDT >= 0 ? "text-success" : "text-danger"
+            }`}
+          >
+            {formatKRW(totalPnlUSDT * USDT_TO_KRW)}
+          </p>
+          <p className="mt-1 text-xs text-muted">
+            ≈ {totalPnlUSDT >= 0 ? "+" : ""}
+            {totalPnlUSDT.toLocaleString("en-US", {
+              maximumFractionDigits: 2,
+            })}{" "}
+            USDT
+          </p>
+        </div>
+      </div>
+
+      {/* 보유 코인 테이블 */}
       <div className="rounded-xl border border-border bg-card">
-        <div className="border-b border-border p-4">
+        <div className="border-b border-border px-4 py-3">
           <h2 className="font-semibold">보유 코인</h2>
         </div>
         {holdingsWithValue.length === 0 ? (
@@ -140,14 +168,14 @@ export function PortfolioView({ initialData }: PortfolioViewProps) {
                   <td />
                   <td />
                   <td className="px-4 py-3 text-right font-mono">
-                    {formatUSD(totalHoldingsValue)}
+                    {formatKRW(holdingsKRW)}
                   </td>
                   <td
                     className={`px-4 py-3 text-right font-mono ${
-                      totalPnl >= 0 ? "text-success" : "text-danger"
+                      totalPnlUSDT >= 0 ? "text-success" : "text-danger"
                     }`}
                   >
-                    {formatUSD(totalPnl)}
+                    {formatKRW(totalPnlUSDT * USDT_TO_KRW)}
                   </td>
                 </tr>
               </tfoot>
@@ -155,6 +183,10 @@ export function PortfolioView({ initialData }: PortfolioViewProps) {
           </div>
         )}
       </div>
+
+      <p className="text-xs text-muted text-right">
+        * 환율 기준: 1 USDT = {USDT_TO_KRW.toLocaleString()}원 (고정)
+      </p>
     </div>
   );
 }

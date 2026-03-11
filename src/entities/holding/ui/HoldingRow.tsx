@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { SYMBOL_NAMES } from "@/entities/coin";
-import { formatUSD, formatNumber, formatPercent } from "@/shared/lib/format";
+import { formatKRW, formatNumber, formatPercent } from "@/shared/lib/format";
+
+const USDT_TO_KRW = 1350;
 
 interface Props {
   id: string;
@@ -36,20 +38,22 @@ export function HoldingRow({
         {formatNumber(quantity, 6)}
       </td>
       <td className="px-4 py-3 text-right font-mono">
-        {formatUSD(avgPrice)}
+        <div>{formatKRW(avgPrice * USDT_TO_KRW)}</div>
+        <div className="text-xs text-muted">{formatNumber(avgPrice, 2)} USDT</div>
       </td>
       <td className="px-4 py-3 text-right font-mono">
-        {formatUSD(currentPrice)}
+        <div>{formatKRW(currentPrice * USDT_TO_KRW)}</div>
+        <div className="text-xs text-muted">{formatNumber(currentPrice, 2)} USDT</div>
       </td>
       <td className="px-4 py-3 text-right font-mono">
-        {formatUSD(currentValue)}
+        {formatKRW(currentValue * USDT_TO_KRW)}
       </td>
       <td
         className={`px-4 py-3 text-right font-mono ${
           pnl >= 0 ? "text-success" : "text-danger"
         }`}
       >
-        <div>{formatUSD(pnl)}</div>
+        <div>{formatKRW(pnl * USDT_TO_KRW)}</div>
         <div className="text-xs">{formatPercent(pnlPercent)}</div>
       </td>
     </tr>
