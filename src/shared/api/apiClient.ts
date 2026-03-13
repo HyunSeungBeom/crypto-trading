@@ -18,7 +18,13 @@ const apiClient = ky.create({
   hooks: {
     beforeRequest: [
       (request) => {
-        request.headers.set("X-Request-ID", crypto.randomUUID());
+        request.headers.set(
+          "X-Request-ID",
+          typeof crypto !== "undefined" &&
+            typeof crypto.randomUUID === "function"
+            ? crypto.randomUUID()
+            : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`,
+        );
 
         if (process.env.NODE_ENV === "development") {
           console.debug(`[API] ${request.method} ${request.url}`);

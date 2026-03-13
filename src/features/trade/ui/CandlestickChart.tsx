@@ -41,7 +41,7 @@ export function CandlestickChart({ symbol, height = 500 }: Props) {
   const isFetchingRef = useRef(false);
   const hasMoreRef = useRef(true);
 
-  const { data: klineData, isLoading } = useKlines(symbol, interval, INITIAL_LIMIT);
+  const { data: klineData, isLoading, isError, error } = useKlines(symbol, interval, INITIAL_LIMIT);
 
   // Reset accumulated data when symbol or interval changes
   useEffect(() => {
@@ -89,6 +89,14 @@ export function CandlestickChart({ symbol, height = 500 }: Props) {
     } finally {
       isFetchingRef.current = false;
       setIsLoadingMore(false);
+    }
+
+    // 로딩 후에도 왼쪽에 빈 공간이 남아있는지 확인 → 추가 로딩
+    if (hasMoreRef.current && chartRef.current) {
+      const range = chartRef.current.timeScale().getVisibleLogicalRange();
+      if (range && range.from <= 10) {
+        loadMoreHistory();
+      }
     }
   }, [symbol, interval]);
 
@@ -190,7 +198,12 @@ export function CandlestickChart({ symbol, height = 500 }: Props) {
             {int.label}
           </button>
         ))}
-        {(isLoading || isLoadingMore) && (
+        {isError && (
+          <span className="ml-auto text-xs text-danger">
+            차트 로딩 실패: {error?.message || "알 수 없는 오류"}
+          </span>
+        )}
+        {!isError && (isLoading || isLoadingMore) && (
           <span className="ml-auto text-xs text-muted">로딩 중...</span>
         )}
       </div>

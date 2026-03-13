@@ -13,7 +13,7 @@ interface Props {
 
 export function CoinSelector({ selectedSymbol, onSelect }: Props) {
   const [search, setSearch] = useState("");
-  const { data: tickers } = useCoins();
+  const { data: tickers, isError, error } = useCoins();
   const prices = usePriceStore((s) => s.prices);
 
   const filtered = tickers?.filter((t) => {
@@ -36,6 +36,11 @@ export function CoinSelector({ selectedSymbol, onSelect }: Props) {
         />
       </div>
       <div className="flex-1 overflow-y-auto">
+        {isError && (
+          <div className="p-3 text-sm text-danger">
+            코인 목록 로딩 실패: {error?.message || "알 수 없는 오류"}
+          </div>
+        )}
         {filtered?.map((ticker) => {
           const live = prices[ticker.symbol];
           const currentPrice = live

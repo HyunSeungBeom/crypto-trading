@@ -34,7 +34,7 @@ export const authConfig = {
     },
     async authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      const isProtected = nextUrl.pathname.startsWith("/dashboard") ||
+      const isProtected =
         nextUrl.pathname.startsWith("/portfolio") ||
         nextUrl.pathname.startsWith("/transactions") ||
         nextUrl.pathname.startsWith("/alerts") ||

@@ -21,6 +21,10 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const { data: session } = useSession();
 
+  const visibleNavItems = session
+    ? NAV_ITEMS
+    : NAV_ITEMS.filter((item) => item.href === "/dashboard");
+
   return (
     <PriceProvider>
       <div className="min-h-screen">
@@ -31,7 +35,7 @@ export default function DashboardLayout({
                 CryptoSim
               </Link>
               <nav className="hidden items-center gap-1 md:flex">
-                {NAV_ITEMS.map((item) => (
+                {visibleNavItems.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
@@ -48,20 +52,39 @@ export default function DashboardLayout({
               </nav>
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-muted">
-                {session?.user?.name}
-              </span>
-              <button
-                onClick={() => signOut({ callbackUrl: "/" })}
-                className="rounded-md px-3 py-1.5 text-sm text-muted hover:text-foreground transition-colors"
-              >
-                로그아웃
-              </button>
+              {session ? (
+                <>
+                  <span className="text-sm text-muted">
+                    {session.user?.name}
+                  </span>
+                  <button
+                    onClick={() => signOut({ callbackUrl: "/" })}
+                    className="rounded-md px-3 py-1.5 text-sm text-muted hover:text-foreground transition-colors"
+                  >
+                    로그아웃
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-hover transition-colors"
+                  >
+                    로그인
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="rounded-md border border-border px-3 py-1.5 text-sm font-medium hover:bg-card transition-colors"
+                  >
+                    회원가입
+                  </Link>
+                </>
+              )}
             </div>
           </div>
           {/* Mobile nav */}
           <nav className="flex overflow-x-auto border-t border-border px-4 md:hidden">
-            {NAV_ITEMS.map((item) => (
+            {visibleNavItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}

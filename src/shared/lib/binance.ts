@@ -19,7 +19,17 @@ export async function fetchTickers(): Promise<TickerData[]> {
   );
 
   if (!res.ok) throw new Error("Failed to fetch tickers");
-  return res.json();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const data: any[] = await res.json();
+  return data.map((t) => ({
+    symbol: t.symbol,
+    price: t.lastPrice,
+    priceChangePercent: t.priceChangePercent,
+    highPrice: t.highPrice,
+    lowPrice: t.lowPrice,
+    volume: t.volume,
+    quoteVolume: t.quoteVolume,
+  }));
 }
 
 export async function fetchKlines(

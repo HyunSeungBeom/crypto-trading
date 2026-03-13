@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function OrderBook({ symbol }: Props) {
-  const { data, isLoading } = useOrderBook(symbol);
+  const { data, isLoading, isError, error } = useOrderBook(symbol);
   const prices = usePriceStore((s) => s.prices);
   const currentPrice = prices[symbol] ? parseFloat(prices[symbol].price) : 0;
 
@@ -56,6 +56,14 @@ export function OrderBook({ symbol }: Props) {
     return (
       <div className="rounded-xl border border-border bg-card p-4 flex items-center justify-center h-[350px]">
         <span className="text-sm text-muted">호가 로딩 중...</span>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="rounded-xl border border-border bg-card p-4 flex items-center justify-center h-[350px]">
+        <span className="text-sm text-danger">호가 로딩 실패: {error?.message || "알 수 없는 오류"}</span>
       </div>
     );
   }

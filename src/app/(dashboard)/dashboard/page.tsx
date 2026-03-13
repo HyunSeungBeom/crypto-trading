@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { usePriceStore } from "@/shared/model/priceStore";
 import { SYMBOL_NAMES, SUPPORTED_SYMBOLS } from "@/entities/coin";
 import { formatUSD, formatPercent } from "@/shared/lib/format";
@@ -11,7 +13,8 @@ import { TradeForm, CandlestickChart, OrderBook } from "@/features/trade";
 export default function DashboardPage() {
   const [selected, setSelected] = useState<string>("BTCUSDT");
   const prices = usePriceStore((s) => s.prices);
-  const { data: portfolio } = usePortfolio();
+  const { data: session } = useSession();
+  const { data: portfolio } = usePortfolio({ enabled: !!session });
 
   const live = prices[selected];
   const currentPrice = live ? parseFloat(live.price) : 0;
@@ -70,11 +73,33 @@ export default function DashboardPage() {
             <OrderBook symbol={selected} />
           </div>
           <div className="w-full lg:w-80 shrink-0">
-            <TradeForm
-              symbol={selected}
-              balance={portfolio?.balance ?? 0}
-              holdingQuantity={holding?.quantity ?? 0}
-            />
+            {session ? (
+              <TradeForm
+                symbol={selected}
+                balance={portfolio?.balance ?? 0}
+                holdingQuantity={holding?.quantity ?? 0}
+              />
+            ) : (
+              <div className="rounded-xl border border-border bg-card p-6 text-center">
+                <p className="mb-4 text-sm text-muted">
+                  로그인 후 거래할 수 있습니다
+                </p>
+                <div className="flex flex-col gap-2">
+                  <Link
+                    href="/login"
+                    className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover transition-colors"
+                  >
+                    로그인
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="rounded-md border border-border px-4 py-2 text-sm font-medium hover:bg-card transition-colors"
+                  >
+                    회원가입
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

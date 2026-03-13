@@ -1,7 +1,12 @@
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, QueryCache } from "@tanstack/react-query";
 
 export function createQueryClient() {
   return new QueryClient({
+    queryCache: new QueryCache({
+      onError: (error, query) => {
+        console.error(`[Query Error] ${query.queryKey}:`, error);
+      },
+    }),
     defaultOptions: {
       queries: {
         staleTime: 30 * 1000,
