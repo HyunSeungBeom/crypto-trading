@@ -99,12 +99,19 @@ export function LoginForm() {
         </button>
       </form>
 
-      <p className="text-center text-sm text-muted">
-        계정이 없으신가요?{" "}
-        <Link href="/signup" className="text-primary hover:underline">
-          회원가입
-        </Link>
-      </p>
+      <div className="space-y-2 text-center text-sm text-muted">
+        <p>
+          <Link href="/forgot-password" className="text-primary hover:underline">
+            비밀번호를 잊으셨나요?
+          </Link>
+        </p>
+        <p>
+          계정이 없으신가요?{" "}
+          <Link href="/signup" className="text-primary hover:underline">
+            회원가입
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }
